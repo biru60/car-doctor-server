@@ -27,7 +27,7 @@ async function run() {
     await client.connect();
     
     const services=client.db("car-doctor").collection("services");
-
+     const bookings=client.db("car-doctor").collection("bookings")
 
     app.get('/services',async(req,res)=>{
         const result=await services.find().toArray()
@@ -38,6 +38,41 @@ async function run() {
         const id=req.params.id;
         const query={_id:new ObjectId(id)};
         const result=await services.findOne(query);
+        res.send(result);
+    })
+
+    app.get("/bookings",async(req,res)=>{
+        console.log(req.query.email);
+        let query={};
+        if(req.query?.email){
+            query={email:req.query.email}
+        }
+        const result=await bookings.find(query).toArray()
+        res.send(result)
+    })
+
+    app.post("/bookings",async(req,res)=>{
+        const booking=req.body;
+        const result=await bookings.insertOne(booking)
+        res.send(result);
+
+    })
+    app.patchg("/update/:id",async(req,res)=>{
+        const id=req.params.id;
+        const query={_id:new ObjectId(id)};
+        const data=req.body;
+        const updateDoc={
+            $set: {
+               status:data.status
+              },
+        }
+        const result=await bookings.updateOne(query,updateDoc)
+        res.send(result);
+    })
+    app.delete("/delete/:id",async(req,res)=>{
+        const id=req.params.id;
+        const query={_id:new ObjectId(id)};
+        const result=await bookings.deleteOne(query);
         res.send(result);
     })
 
